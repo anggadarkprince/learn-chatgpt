@@ -20,14 +20,16 @@ class ChatGPT
         ]);
     }
 
-    public function ask($prompt)
+    public function ask($prompt, $options = [])
     {
         $response = $this->client->post('chat/completions', [
             'json' => [
-                "model" => "gpt-3.5-turbo",
+                "model" => $options['model'] ?? "gpt-3.5-turbo",
                 'messages' => [
                     ['role' => 'user', 'content' => $prompt],
                 ],
+                'stream' => $options['stream'] ?? false,
+                'max_tokens' => $options['max_tokens'] ?? 4096
             ],
         ]);
         $result = json_decode($response->getBody(), true);
