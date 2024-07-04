@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Sentiment Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+        <h1 class="text-2xl font-semibold mb-4">News Sentiment Analysis</h1>
+        
+        <div class="mb-6">
+            <label for="company_name" class="block font-medium mb-2">Enter Company's Name:</label>
+            <input type="text" id="company_name" class="border rounded px-3 py-2 w-full" placeholder="Company's Name">
+        </div>
+        
+        <button id="btn-analyze" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center">
+            <svg id="spinner" class="hidden animate-spin h-5 w-5 text-white mr-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.963 7.963 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg> Analyze
+        </button>
+        
+        <div class="mt-8 hidden" id="table-news">
+            <table class="w-full border">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="px-4 py-2 text-left">News</th>
+                        <th class="px-4 py-2 text-center">Sentiment</th>
+                    </tr>
+                </thead>
+                <tbody id="table-news-body">
+                    <tr>
+                        <td class="px-4 py-2">Company X announces record-breaking profits.</td>
+                        <td class="px-4 py-2 text-green-600 text-center">Positive</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2">Stock prices of Company Y plummet after scandal.</td>
+                        <td class="px-4 py-2 text-red-600 text-center">Negative</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2">Analysts predict strong growth for Company Z in the next quarter.</td>
+                        <td class="px-4 py-2 text-green-600 text-center">Positive</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2">Company A partners with leading technology firm.</td>
+                        <td class="px-4 py-2 text-neutral text-center">Neutral</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const analyzeBtn = document.getElementById("btn-analyze");
+        const spinner = document.getElementById("spinner");
+        const newsTableContainer = document.getElementById("table-news");
+        const newsTableBody = document.getElementById("table-news-body");
+        const companyNameInput = document.getElementById("company_name");
+    
+        analyzeBtn.addEventListener("click", async () => {
+            spinner.classList.remove("hidden");
+            analyzeBtn.disabled = true;
+    
+            const formData = new FormData();
+            formData.append("company", companyNameInput.value);
+    
+            const response = await fetch("/news-analysis-api.php", {
+                method: "POST",
+                body: formData
+            });
+    
+            const data = await response.json();
+    
+            spinner.classList.add("hidden");
+            analyzeBtn.disabled = false;
+    
+            // Clear existing table rows
+            newsTableBody.innerHTML = "";
+    
+            // Populate table with data from response
+            data.forEach(news => {
+                const row = document.createElement("tr");
+                row.classList.add("border-b");
+    
+                const newsCell = document.createElement("td");
+                newsCell.textContent = news.title;
+    
+                const sentimentCell = document.createElement("td");
+                sentimentCell.textContent = news.sentiment;
+                sentimentCell.classList.add("px-4", "py-2", "text-center");
+    
+                if (news.sentiment === "Positive") {
+                    sentimentCell.classList.add("text-green-600");
+                } else if (news.sentiment === "Negative") {
+                    sentimentCell.classList.add("text-red-600");
+                } else {
+                    sentimentCell.classList.add("text-black");
+                }
+    
+                row.appendChild(newsCell);
+                row.appendChild(sentimentCell);
+                newsTableBody.appendChild(row);
+            });
+    
+            newsTableContainer.classList.remove("hidden");
+        });
+    </script>
+</body>
+</html>
