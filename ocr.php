@@ -17,6 +17,17 @@ $client = new Client([
 ]);
 
 $targetFile = 'statics/packing-list-scanned.pdf';
+
+if ($_GET['image'] ?? false) {
+    //exec("tesseract C:/your/path/file.png C:/output/file");
+
+    $targetFile = 'statics/packing-list-image.jpg';
+    $result = shell_exec('"C:/Program Files/Tesseract-OCR/tesseract.exe" ' . (__DIR__ . '/' . $targetFile) . ' -');
+
+    echo $result;
+    die();
+}
+
 $fileData = fopen($targetFile, 'r');
 
 // https://ocr.space/OCRAPI
