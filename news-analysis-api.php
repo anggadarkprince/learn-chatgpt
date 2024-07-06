@@ -3,23 +3,16 @@
 require 'vendor/autoload.php';
 
 use App\ChatGPT;
-use GuzzleHttp\Client;
+use App\NewsApi;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-$client = new Client();
+$client = new NewsApi();
 
 $company = $_POST['company'];
 
-$response = $client->get('https://newsapi.org/v2/everything', [
-    'query' => [
-        'apiKey' => $_ENV['NEWSAPI_API_KEY'],
-        'q' => $company,
-    ],
-]);
-
-$data = json_decode($response->getBody(), true);
+$data = $client->search($company);
 
 function extractNews($data)
 {
