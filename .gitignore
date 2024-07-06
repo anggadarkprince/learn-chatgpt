@@ -1,3 +1,5 @@
 vendor
 .env
 .idea
+uploads/**/*
+!uploads/.gitkeep
